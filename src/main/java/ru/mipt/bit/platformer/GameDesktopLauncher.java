@@ -5,7 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.control.KeyboardInput;
+import ru.mipt.bit.platformer.control.GdxKeyStateProvider;
+import ru.mipt.bit.platformer.control.InputController;
+import ru.mipt.bit.platformer.control.PlayerControls;
 import ru.mipt.bit.platformer.graphics.LevelGraphics;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.Level;
@@ -21,7 +23,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private LevelGraphics levelGraphics;
     private Level level;
-    private KeyboardInput keyboardInput;
+    private InputController inputController;
 
     @Override
     public void create() {
@@ -30,12 +32,12 @@ public class GameDesktopLauncher implements ApplicationListener {
         Tree treeObstacle = new Tree(new GridPoint2(1, 3));
         level = new Level(levelGraphics.getWidthInTiles(), levelGraphics.getHeightInTiles(),
                 playerTank, singletonList(treeObstacle));
-        keyboardInput = new KeyboardInput();
+        inputController = PlayerControls.create(new GdxKeyStateProvider(), level);
     }
 
     @Override
     public void render() {
-        keyboardInput.pressedDirection().ifPresent(level::movePlayerTank);
+        inputController.handleInput();
         level.update(Gdx.graphics.getDeltaTime());
 
         levelGraphics.render(level);
