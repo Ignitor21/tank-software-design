@@ -2,8 +2,8 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+import static com.badlogic.gdx.math.MathUtils.clamp;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
-import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
 public class Tank {
 
@@ -34,7 +34,7 @@ public class Tank {
     }
 
     public void update(float deltaTime) {
-        movementProgress = continueProgress(movementProgress, deltaTime, movementSpeed);
+        movementProgress = clamp(movementProgress + deltaTime / movementSpeed, 0f, 1f);
         if (!isMoving()) {
             coordinates.set(destinationCoordinates);
         }
