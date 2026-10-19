@@ -6,33 +6,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Collections.unmodifiableList;
-
 public class Level implements CollisionChecker {
 
     private final int widthInTiles;
     private final int heightInTiles;
-    private final Tank playerTank;
-    private final List<Tree> trees;
+    private final List<GameObject> objects;
 
-    public Level(int widthInTiles, int heightInTiles, Tank playerTank, Collection<Tree> trees) {
+    public Level(int widthInTiles, int heightInTiles, Collection<? extends GameObject> objects) {
         this.widthInTiles = widthInTiles;
         this.heightInTiles = heightInTiles;
-        this.playerTank = playerTank;
-        this.trees = new ArrayList<>(trees);
-    }
-
-    public void movePlayerTank(Direction direction) {
-        playerTank.move(direction, this);
+        this.objects = new ArrayList<>(objects);
     }
 
     public void update(float deltaTime) {
-        playerTank.update(deltaTime);
+        for (GameObject object : objects) {
+            object.update(deltaTime);
+        }
     }
 
     @Override
     public boolean isFree(GridPoint2 coordinates) {
-        return isInsideLevel(coordinates) && !isOccupiedByTree(coordinates);
+        return isInsideLevel(coordinates) && !isOccupied(coordinates);
     }
 
     private boolean isInsideLevel(GridPoint2 coordinates) {
@@ -40,20 +34,12 @@ public class Level implements CollisionChecker {
                 && coordinates.y >= 0 && coordinates.y < heightInTiles;
     }
 
-    private boolean isOccupiedByTree(GridPoint2 coordinates) {
-        for (Tree tree : trees) {
-            if (tree.getCoordinates().equals(coordinates)) {
+    private boolean isOccupied(GridPoint2 coordinates) {
+        for (GameObject object : objects) {
+            if (object.occupies(coordinates)) {
                 return true;
             }
         }
         return false;
-    }
-
-    public Tank getPlayerTank() {
-        return playerTank;
-    }
-
-    public List<Tree> getTrees() {
-        return unmodifiableList(trees);
     }
 }

@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import static com.badlogic.gdx.math.MathUtils.clamp;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
 
-public class Tank {
+public class Tank implements GameObject, Movable {
 
     private final float movementSpeed;
     private final GridPoint2 coordinates;
@@ -21,6 +21,7 @@ public class Tank {
         this.movementProgress = 1f;
     }
 
+    @Override
     public void move(Direction direction, CollisionChecker collisionChecker) {
         if (isMoving()) {
             return;
@@ -33,11 +34,17 @@ public class Tank {
         }
     }
 
+    @Override
     public void update(float deltaTime) {
         movementProgress = clamp(movementProgress + deltaTime / movementSpeed, 0f, 1f);
         if (!isMoving()) {
             coordinates.set(destinationCoordinates);
         }
+    }
+
+    @Override
+    public boolean occupies(GridPoint2 coordinates) {
+        return this.coordinates.equals(coordinates) || destinationCoordinates.equals(coordinates);
     }
 
     public boolean isMoving() {

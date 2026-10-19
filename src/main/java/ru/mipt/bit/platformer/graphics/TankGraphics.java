@@ -8,19 +8,19 @@ public class TankGraphics extends GameObjectGraphics<Tank> {
 
     private final TileMovement tileMovement;
 
-    public TankGraphics(String texturePath, TileMovement tileMovement) {
-        super(texturePath);
+    public TankGraphics(String texturePath, Tank tank, TileMovement tileMovement) {
+        super(texturePath, tank);
         this.tileMovement = tileMovement;
     }
 
     @Override
-    protected void moveRectangle(Rectangle rectangle, Tank tank) {
-        tileMovement.moveRectangleBetweenTileCenters(rectangle, tank.getCoordinates(),
-                tank.getDestinationCoordinates(), tank.getMovementProgress());
+    protected void moveRectangle(Rectangle rectangle) {
+        tileMovement.moveRectangleBetweenTileCenters(rectangle, object.getCoordinates(),
+                object.getDestinationCoordinates(), object.getMovementProgress());
     }
 
     @Override
-    protected float getRotation(Tank tank) {
-        return tank.getDirection().getRotation();
+    protected float getRotation() {
+        return object.getDirection().getRotation();
     }
 }
