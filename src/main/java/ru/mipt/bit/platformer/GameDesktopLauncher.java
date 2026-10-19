@@ -10,16 +10,24 @@ import com.badlogic.gdx.math.Interpolation;
 import ru.mipt.bit.platformer.control.GdxKeyStateProvider;
 import ru.mipt.bit.platformer.control.InputController;
 import ru.mipt.bit.platformer.control.PlayerControls;
+import ru.mipt.bit.platformer.generation.FileLevelGenerator;
+import ru.mipt.bit.platformer.generation.LevelGenerator;
+import ru.mipt.bit.platformer.generation.LevelLayout;
+import ru.mipt.bit.platformer.generation.RandomLevelGenerator;
 import ru.mipt.bit.platformer.graphics.LevelGraphics;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
 import ru.mipt.bit.platformer.model.Direction;
+import ru.mipt.bit.platformer.model.GameObject;
 import ru.mipt.bit.platformer.model.Level;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.model.Tree;
 import ru.mipt.bit.platformer.util.TileMovement;
 
-import static java.util.Arrays.asList;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class GameDesktopLauncher implements ApplicationListener {
 
@@ -27,24 +35,35 @@ public class GameDesktopLauncher implements ApplicationListener {
     private static final String LEVEL_PATH = "level.tmx";
     private static final String TANK_TEXTURE = "images/tank_blue.png";
     private static final String TREE_TEXTURE = "images/greenTree.png";
+    private static final int RANDOM_TREE_COUNT = 10;
 
+    private final LevelGenerator levelGenerator;
     private LevelGraphics levelGraphics;
     private Level level;
     private InputController inputController;
+
+    public GameDesktopLauncher(LevelGenerator levelGenerator) {
+        this.levelGenerator = levelGenerator;
+    }
 
     @Override
     public void create() {
         levelGraphics = new LevelGraphics(LEVEL_PATH);
         TiledMapTileLayer groundLayer = levelGraphics.getGroundLayer();
+        int widthInTiles = levelGraphics.getWidthInTiles();
+        int heightInTiles = levelGraphics.getHeightInTiles();
+        LevelLayout layout = levelGenerator.generate(widthInTiles, heightInTiles);
 
-        Tank playerTank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, MOVEMENT_SPEED);
-        Tree treeObstacle = new Tree(new GridPoint2(1, 3));
-        level = new Level(levelGraphics.getWidthInTiles(), levelGraphics.getHeightInTiles(),
-                asList(playerTank, treeObstacle));
-
-        levelGraphics
-                .add(new TankGraphics(TANK_TEXTURE, playerTank, new TileMovement(groundLayer, Interpolation.smooth)))
-                .add(new TreeGraphics(TREE_TEXTURE, treeObstacle, groundLayer));
+        List<GameObject> objects = new ArrayList<>();
+        Tank playerTank = new Tank(layout.getPlayerPosition(), Direction.RIGHT, MOVEMENT_SPEED);
+        objects.add(playerTank);
+        levelGraphics.add(new TankGraphics(TANK_TEXTURE, playerTank, new TileMovement(groundLayer, Interpolation.smooth)));
+        for (GridPoint2 treePosition : layout.getTreePositions()) {
+            Tree tree = new Tree(treePosition);
+            objects.add(tree);
+            levelGraphics.add(new TreeGraphics(TREE_TEXTURE, tree, groundLayer));
+        }
+        level = new Level(widthInTiles, heightInTiles, objects);
 
         inputController = PlayerControls.create(new GdxKeyStateProvider(), playerTank, level);
     }
@@ -81,6 +100,13 @@ public class GameDesktopLauncher implements ApplicationListener {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         // level width: 10 tiles x 128px, height: 8 tiles x 128px
         config.setWindowedMode(1280, 1024);
-        new Lwjgl3Application(new GameDesktopLauncher(), config);
+        new Lwjgl3Application(new GameDesktopLauncher(createLevelGenerator(args)), config);
+    }
+
+    private static LevelGenerator createLevelGenerator(String[] args) {
+        if (args.length > 0) {
+            return new FileLevelGenerator(Paths.get(args[0]));
+        }
+        return new RandomLevelGenerator(RANDOM_TREE_COUNT, new Random());
     }
 }
