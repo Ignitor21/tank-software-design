@@ -5,10 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Maps keys to commands and executes the commands whose keys are currently pressed.
- * Several keys may be bound to the same kind of action; bindings are checked in the order they were added.
- */
 public class InputController {
 
     private final KeyStateProvider keyStateProvider;

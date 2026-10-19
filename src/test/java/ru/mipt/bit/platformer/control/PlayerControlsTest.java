@@ -8,7 +8,7 @@ import ru.mipt.bit.platformer.model.Level;
 import ru.mipt.bit.platformer.model.Tank;
 
 import static com.badlogic.gdx.Input.Keys.valueOf;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlayerControlsTest {
@@ -23,8 +23,8 @@ class PlayerControlsTest {
     void keyMovesTankInDirection(String keyName, Direction expected) {
         int keyCode = valueOf(keyName);
         Tank tank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, 0.4f);
-        Level level = new Level(10, 8, tank, emptyList());
-        InputController controller = PlayerControls.create(key -> key == keyCode, level);
+        Level level = new Level(10, 8, singletonList(tank));
+        InputController controller = PlayerControls.create(key -> key == keyCode, tank, level);
 
         controller.handleInput();
 

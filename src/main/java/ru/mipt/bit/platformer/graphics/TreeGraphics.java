@@ -12,18 +12,18 @@ public class TreeGraphics extends GameObjectGraphics<Tree> {
 
     private final TiledMapTileLayer groundLayer;
 
-    public TreeGraphics(String texturePath, TiledMapTileLayer groundLayer) {
-        super(texturePath);
+    public TreeGraphics(String texturePath, Tree tree, TiledMapTileLayer groundLayer) {
+        super(texturePath, tree);
         this.groundLayer = groundLayer;
     }
 
     @Override
-    protected void moveRectangle(Rectangle rectangle, Tree tree) {
-        moveRectangleAtTileCenter(groundLayer, rectangle, tree.getCoordinates());
+    protected void moveRectangle(Rectangle rectangle) {
+        moveRectangleAtTileCenter(groundLayer, rectangle, object.getCoordinates());
     }
 
     @Override
-    protected float getRotation(Tree tree) {
+    protected float getRotation() {
         return NO_ROTATION;
     }
 }
