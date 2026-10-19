@@ -99,4 +99,27 @@ class TankTest {
         assertTrue(tank.isMoving());
         assertEquals(new GridPoint2(2, 2), tank.getDestinationCoordinates());
     }
+
+    @Test
+    void occupiesCurrentTileWhenStanding() {
+        assertTrue(tank.occupies(new GridPoint2(1, 1)));
+        assertFalse(tank.occupies(new GridPoint2(1, 2)));
+    }
+
+    @Test
+    void occupiesBothTilesWhileMoving() {
+        tank.move(Direction.UP, ALWAYS_FREE);
+
+        assertTrue(tank.occupies(new GridPoint2(1, 1)));
+        assertTrue(tank.occupies(new GridPoint2(1, 2)));
+    }
+
+    @Test
+    void releasesPreviousTileAfterArrival() {
+        tank.move(Direction.UP, ALWAYS_FREE);
+        tank.update(SPEED);
+
+        assertFalse(tank.occupies(new GridPoint2(1, 1)));
+        assertTrue(tank.occupies(new GridPoint2(1, 2)));
+    }
 }
