@@ -14,57 +14,70 @@ import static com.badlogic.gdx.Input.Keys.W;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class InputControllerTest {
+class KeyboardControlStrategyTest {
 
     private final Set<Integer> pressedKeys = new HashSet<>();
     private final List<String> executed = new ArrayList<>();
-    private final InputController controller = new InputController(pressedKeys::contains)
+    private final KeyboardControlStrategy strategy = new KeyboardControlStrategy(pressedKeys::contains)
             .bind(UP, () -> executed.add("up"))
             .bind(W, () -> executed.add("w"))
             .bind(SPACE, () -> executed.add("space"));
 
     @Test
-    void doesNothingWhenNoKeyIsPressed() {
-        controller.handleInput();
-
-        assertEquals(emptyList(), executed);
+    void givesNoCommandsWhenNoKeyIsPressed() {
+        assertEquals(emptyList(), strategy.nextCommands());
     }
 
     @Test
-    void executesCommandOfPressedKey() {
+    void givesCommandOfPressedKey() {
         pressedKeys.add(SPACE);
 
-        controller.handleInput();
+        executeNextCommands();
 
         assertEquals(Arrays.asList("space"), executed);
     }
 
     @Test
-    void executesAllPressedCommandsInBindingOrder() {
+    void givesAllPressedCommandsInBindingOrder() {
         pressedKeys.addAll(Arrays.asList(SPACE, UP));
 
-        controller.handleInput();
+        executeNextCommands();
 
         assertEquals(Arrays.asList("up", "space"), executed);
     }
 
     @Test
-    void executesCommandOncePerHandleInput() {
+    void givesCommandOncePerCall() {
         pressedKeys.add(W);
 
-        controller.handleInput();
-        controller.handleInput();
+        executeNextCommands();
+        executeNextCommands();
 
         assertEquals(Arrays.asList("w", "w"), executed);
     }
 
     @Test
-    void rebindingKeyReplacesCommand() {
-        controller.bind(UP, () -> executed.add("replaced"));
+    void doesNotExecuteCommandsItself() {
         pressedKeys.add(UP);
 
-        controller.handleInput();
+        strategy.nextCommands();
+
+        assertEquals(emptyList(), executed);
+    }
+
+    @Test
+    void rebindingKeyReplacesCommand() {
+        strategy.bind(UP, () -> executed.add("replaced"));
+        pressedKeys.add(UP);
+
+        executeNextCommands();
 
         assertEquals(Arrays.asList("replaced"), executed);
+    }
+
+    private void executeNextCommands() {
+        for (Command command : strategy.nextCommands()) {
+            command.execute();
+        }
     }
 }

@@ -24,9 +24,9 @@ class PlayerControlsTest {
         int keyCode = valueOf(keyName);
         Tank tank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, 0.4f);
         Level level = new Level(10, 8, singletonList(tank));
-        InputController controller = PlayerControls.create(key -> key == keyCode, tank, level);
+        KeyboardControlStrategy strategy = PlayerControls.create(key -> key == keyCode, tank, level);
 
-        controller.handleInput();
+        new GameController(singletonList(strategy)).executeCommands();
 
         assertEquals(expected, tank.getDirection());
         assertEquals(expected.apply(new GridPoint2(1, 1)), tank.getDestinationCoordinates());

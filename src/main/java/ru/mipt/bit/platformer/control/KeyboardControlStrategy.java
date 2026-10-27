@@ -5,27 +5,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InputController {
+public class KeyboardControlStrategy implements ControlStrategy {
 
     private final KeyStateProvider keyStateProvider;
     private final Map<Integer, Command> bindings = new LinkedHashMap<>();
 
-    public InputController(KeyStateProvider keyStateProvider) {
+    public KeyboardControlStrategy(KeyStateProvider keyStateProvider) {
         this.keyStateProvider = keyStateProvider;
     }
 
-    public InputController bind(int keyCode, Command command) {
+    public KeyboardControlStrategy bind(int keyCode, Command command) {
         bindings.put(keyCode, command);
         return this;
     }
 
-    public void handleInput() {
-        for (Command command : pressedCommands()) {
-            command.execute();
-        }
-    }
-
-    private List<Command> pressedCommands() {
+    @Override
+    public List<Command> nextCommands() {
         List<Command> commands = new ArrayList<>();
         for (Map.Entry<Integer, Command> binding : bindings.entrySet()) {
             if (keyStateProvider.isKeyPressed(binding.getKey())) {

@@ -18,9 +18,9 @@ public final class PlayerControls {
     private PlayerControls() {
     }
 
-    public static InputController create(KeyStateProvider keyStateProvider, Movable player,
-                                         CollisionChecker collisionChecker) {
-        return new InputController(keyStateProvider)
+    public static KeyboardControlStrategy create(KeyStateProvider keyStateProvider, Movable player,
+                                                   CollisionChecker collisionChecker) {
+        return new KeyboardControlStrategy(keyStateProvider)
                 .bind(UP, new MoveCommand(player, Direction.UP, collisionChecker))
                 .bind(W, new MoveCommand(player, Direction.UP, collisionChecker))
                 .bind(LEFT, new MoveCommand(player, Direction.LEFT, collisionChecker))

@@ -7,9 +7,11 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Interpolation;
+import ru.mipt.bit.platformer.control.ControlStrategy;
+import ru.mipt.bit.platformer.control.GameController;
 import ru.mipt.bit.platformer.control.GdxKeyStateProvider;
-import ru.mipt.bit.platformer.control.InputController;
 import ru.mipt.bit.platformer.control.PlayerControls;
+import ru.mipt.bit.platformer.control.RandomControlStrategy;
 import ru.mipt.bit.platformer.generation.FileLevelGenerator;
 import ru.mipt.bit.platformer.generation.LevelGenerator;
 import ru.mipt.bit.platformer.generation.LevelLayout;
@@ -36,11 +38,12 @@ public class GameDesktopLauncher implements ApplicationListener {
     private static final String TANK_TEXTURE = "images/tank_blue.png";
     private static final String TREE_TEXTURE = "images/greenTree.png";
     private static final int RANDOM_TREE_COUNT = 10;
+    private static final int RANDOM_TANK_COUNT = 4;
 
     private final LevelGenerator levelGenerator;
     private LevelGraphics levelGraphics;
     private Level level;
-    private InputController inputController;
+    private GameController gameController;
 
     public GameDesktopLauncher(LevelGenerator levelGenerator) {
         this.levelGenerator = levelGenerator;
@@ -55,9 +58,14 @@ public class GameDesktopLauncher implements ApplicationListener {
         LevelLayout layout = levelGenerator.generate(widthInTiles, heightInTiles);
 
         List<GameObject> objects = new ArrayList<>();
-        Tank playerTank = new Tank(layout.getPlayerPosition(), Direction.RIGHT, MOVEMENT_SPEED);
+        Tank playerTank = createTank(layout.getPlayerPosition(), groundLayer);
         objects.add(playerTank);
-        levelGraphics.add(new TankGraphics(TANK_TEXTURE, playerTank, new TileMovement(groundLayer, Interpolation.smooth)));
+        List<Tank> enemyTanks = new ArrayList<>();
+        for (GridPoint2 tankPosition : layout.getTankPositions()) {
+            Tank tank = createTank(tankPosition, groundLayer);
+            objects.add(tank);
+            enemyTanks.add(tank);
+        }
         for (GridPoint2 treePosition : layout.getTreePositions()) {
             Tree tree = new Tree(treePosition);
             objects.add(tree);
@@ -65,12 +73,24 @@ public class GameDesktopLauncher implements ApplicationListener {
         }
         level = new Level(widthInTiles, heightInTiles, objects);
 
-        inputController = PlayerControls.create(new GdxKeyStateProvider(), playerTank, level);
+        List<ControlStrategy> strategies = new ArrayList<>();
+        strategies.add(PlayerControls.create(new GdxKeyStateProvider(), playerTank, level));
+        Random random = new Random();
+        for (Tank tank : enemyTanks) {
+            strategies.add(new RandomControlStrategy(tank, level, random));
+        }
+        gameController = new GameController(strategies);
+    }
+
+    private Tank createTank(GridPoint2 position, TiledMapTileLayer groundLayer) {
+        Tank tank = new Tank(position, Direction.RIGHT, MOVEMENT_SPEED);
+        levelGraphics.add(new TankGraphics(TANK_TEXTURE, tank, new TileMovement(groundLayer, Interpolation.smooth)));
+        return tank;
     }
 
     @Override
     public void render() {
-        inputController.handleInput();
+        gameController.executeCommands();
         level.update(Gdx.graphics.getDeltaTime());
 
         levelGraphics.render();
@@ -107,6 +127,6 @@ public class GameDesktopLauncher implements ApplicationListener {
         if (args.length > 0) {
             return new FileLevelGenerator(Paths.get(args[0]));
         }
-        return new RandomLevelGenerator(RANDOM_TREE_COUNT, new Random());
+        return new RandomLevelGenerator(RANDOM_TREE_COUNT, RANDOM_TANK_COUNT, new Random());
     }
 }
