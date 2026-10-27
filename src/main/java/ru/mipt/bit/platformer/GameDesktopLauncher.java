@@ -7,8 +7,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Interpolation;
+import ru.mipt.bit.platformer.control.GameController;
 import ru.mipt.bit.platformer.control.GdxKeyStateProvider;
-import ru.mipt.bit.platformer.control.InputController;
 import ru.mipt.bit.platformer.control.PlayerControls;
 import ru.mipt.bit.platformer.generation.FileLevelGenerator;
 import ru.mipt.bit.platformer.generation.LevelGenerator;
@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.util.Collections.singletonList;
+
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final float MOVEMENT_SPEED = 0.4f;
@@ -40,7 +42,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private final LevelGenerator levelGenerator;
     private LevelGraphics levelGraphics;
     private Level level;
-    private InputController inputController;
+    private GameController gameController;
 
     public GameDesktopLauncher(LevelGenerator levelGenerator) {
         this.levelGenerator = levelGenerator;
@@ -65,12 +67,13 @@ public class GameDesktopLauncher implements ApplicationListener {
         }
         level = new Level(widthInTiles, heightInTiles, objects);
 
-        inputController = PlayerControls.create(new GdxKeyStateProvider(), playerTank, level);
+        gameController = new GameController(singletonList(
+                PlayerControls.create(new GdxKeyStateProvider(), playerTank, level)));
     }
 
     @Override
     public void render() {
-        inputController.handleInput();
+        gameController.executeCommands();
         level.update(Gdx.graphics.getDeltaTime());
 
         levelGraphics.render();
