@@ -76,6 +76,56 @@ class LevelTest {
     }
 
     @Test
+    void movingTankBlocksBothItsTilesForOtherTanks() {
+        Tank mover = new Tank(new GridPoint2(1, 0), Direction.RIGHT, SPEED);
+        Tank fromLeft = new Tank(new GridPoint2(0, 0), Direction.RIGHT, SPEED);
+        Tank fromRight = new Tank(new GridPoint2(3, 0), Direction.LEFT, SPEED);
+        Level row = new Level(4, 1, asList(mover, fromLeft, fromRight));
+
+        mover.move(Direction.RIGHT, row);
+        fromLeft.move(Direction.RIGHT, row);
+        fromRight.move(Direction.LEFT, row);
+
+        assertTrue(mover.isMoving());
+        assertFalse(fromLeft.isMoving());
+        assertFalse(fromRight.isMoving());
+    }
+
+    @Test
+    void tankFreesPreviousTileForOtherTanksAfterArrival() {
+        Tank mover = new Tank(new GridPoint2(1, 0), Direction.RIGHT, SPEED);
+        Tank follower = new Tank(new GridPoint2(0, 0), Direction.RIGHT, SPEED);
+        Level row = new Level(3, 1, asList(mover, follower));
+
+        mover.move(Direction.RIGHT, row);
+        row.update(SPEED);
+        follower.move(Direction.RIGHT, row);
+
+        assertTrue(follower.isMoving());
+        assertEquals(new GridPoint2(1, 0), follower.getDestinationCoordinates());
+    }
+
+    @Test
+    void levelBorderBlocksTankOnEverySide() {
+        Tank cornerTank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, SPEED);
+        Level tinyLevel = new Level(2, 2, singletonList(cornerTank));
+
+        cornerTank.move(Direction.UP, tinyLevel);
+        assertFalse(cornerTank.isMoving());
+        cornerTank.move(Direction.RIGHT, tinyLevel);
+        assertFalse(cornerTank.isMoving());
+        cornerTank.move(Direction.LEFT, tinyLevel);
+        tinyLevel.update(SPEED);
+        cornerTank.move(Direction.LEFT, tinyLevel);
+        assertFalse(cornerTank.isMoving());
+        cornerTank.move(Direction.DOWN, tinyLevel);
+        tinyLevel.update(SPEED);
+        cornerTank.move(Direction.DOWN, tinyLevel);
+        assertFalse(cornerTank.isMoving());
+        assertEquals(new GridPoint2(0, 0), cornerTank.getCoordinates());
+    }
+
+    @Test
     void updateAdvancesAllObjects() {
         List<Float> updates = new ArrayList<>();
         GameObject first = new GameObject() {
