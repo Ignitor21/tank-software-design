@@ -59,6 +59,55 @@ class RandomLevelGeneratorTest {
                 () -> new RandomLevelGenerator(6, new Random()).generate(3, 2));
     }
 
+    @RepeatedTest(20)
+    void placesPlayerTreesAndTanksOnDistinctTilesInsideLevel() {
+        LevelLayout layout = new RandomLevelGenerator(10, 5, new Random()).generate(10, 8);
+
+        Set<GridPoint2> occupied = new HashSet<>(layout.getTreePositions());
+        occupied.addAll(layout.getTankPositions());
+        occupied.add(layout.getPlayerPosition());
+        assertEquals(10, layout.getTreePositions().size());
+        assertEquals(5, layout.getTankPositions().size());
+        assertEquals(16, occupied.size());
+        for (GridPoint2 position : occupied) {
+            assertTrue(position.x >= 0 && position.x < 10 && position.y >= 0 && position.y < 8);
+        }
+    }
+
+    @Test
+    void generatesNoTanksByDefault() {
+        LevelLayout layout = new RandomLevelGenerator(5, new Random()).generate(10, 8);
+
+        assertTrue(layout.getTankPositions().isEmpty());
+    }
+
+    @Test
+    void sameSeedGivesSameTankPositions() {
+        LevelLayout first = new RandomLevelGenerator(5, 3, new Random(42)).generate(10, 8);
+        LevelLayout second = new RandomLevelGenerator(5, 3, new Random(42)).generate(10, 8);
+
+        assertEquals(first.getTankPositions(), second.getTankPositions());
+    }
+
+    @Test
+    void canFillWholeLevelWithTreesAndTanks() {
+        LevelLayout layout = new RandomLevelGenerator(3, 2, new Random()).generate(3, 2);
+
+        assertEquals(3, layout.getTreePositions().size());
+        assertEquals(2, layout.getTankPositions().size());
+    }
+
+    @Test
+    void failsWhenTanksDoNotFit() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new RandomLevelGenerator(3, 3, new Random()).generate(3, 2));
+    }
+
+    @Test
+    void rejectsNegativeTankCount() {
+        assertThrows(IllegalArgumentException.class, () -> new RandomLevelGenerator(0, -1, new Random()));
+    }
+
     @Test
     void rejectsNegativeTreeCount() {
         assertThrows(IllegalArgumentException.class, () -> new RandomLevelGenerator(-1, new Random()));
