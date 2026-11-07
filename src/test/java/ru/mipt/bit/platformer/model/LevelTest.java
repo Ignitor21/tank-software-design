@@ -159,4 +159,78 @@ class LevelTest {
         assertFalse(levelWithTree.isFree(new GridPoint2(2, 2)));
         assertTrue(new Level(10, 8, emptyList()).isFree(new GridPoint2(2, 2)));
     }
+
+    @Test
+    void observerReceivesExistingObjectsOnRegistration() {
+        RecordingObserver observer = new RecordingObserver();
+
+        level.addObserver(observer);
+
+        assertEquals(2, observer.added.size());
+        assertTrue(observer.added.contains(tank));
+        assertTrue(observer.removed.isEmpty());
+    }
+
+    @Test
+    void observerIsNotifiedWhenObjectIsAdded() {
+        RecordingObserver observer = new RecordingObserver();
+        level.addObserver(observer);
+        observer.added.clear();
+        GameObject added = new Tree(new GridPoint2(5, 5));
+
+        level.addObject(added);
+
+        assertEquals(singletonList(added), observer.added);
+    }
+
+    @Test
+    void observerIsNotifiedWhenObjectIsRemoved() {
+        RecordingObserver observer = new RecordingObserver();
+        level.addObserver(observer);
+
+        level.removeObject(tank);
+
+        assertEquals(singletonList(tank), observer.removed);
+    }
+
+    @Test
+    void deadObjectsAreRemovedAndObserved() {
+        RecordingObserver observer = new RecordingObserver();
+        level.addObserver(observer);
+        observer.removed.clear();
+
+        tank.takeDamage(Tank.DEFAULT_HEALTH);
+        level.update(0f);
+
+        assertTrue(observer.removed.contains(tank));
+        assertTrue(level.isFree(new GridPoint2(1, 1)));
+    }
+
+    @Test
+    void removedObserverStopsReceivingNotifications() {
+        RecordingObserver observer = new RecordingObserver();
+        level.addObserver(observer);
+        level.removeObserver(observer);
+        observer.added.clear();
+
+        level.addObject(new Tree(new GridPoint2(5, 5)));
+
+        assertTrue(observer.added.isEmpty());
+    }
+
+    private static final class RecordingObserver implements LevelObserver {
+
+        private final List<GameObject> added = new ArrayList<>();
+        private final List<GameObject> removed = new ArrayList<>();
+
+        @Override
+        public void onObjectAdded(GameObject object) {
+            added.add(object);
+        }
+
+        @Override
+        public void onObjectRemoved(GameObject object) {
+            removed.add(object);
+        }
+    }
 }
