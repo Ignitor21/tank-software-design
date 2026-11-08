@@ -17,6 +17,7 @@ import ru.mipt.bit.platformer.generation.LevelGenerator;
 import ru.mipt.bit.platformer.generation.LevelLayout;
 import ru.mipt.bit.platformer.generation.RandomLevelGenerator;
 import ru.mipt.bit.platformer.graphics.BulletGraphics;
+import ru.mipt.bit.platformer.graphics.HealthBarGraphics;
 import ru.mipt.bit.platformer.graphics.LevelGraphics;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
@@ -26,6 +27,7 @@ import ru.mipt.bit.platformer.model.GameObject;
 import ru.mipt.bit.platformer.model.Level;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.model.Tree;
+import ru.mipt.bit.platformer.settings.HealthBarSettings;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import java.nio.file.Paths;
@@ -64,7 +66,8 @@ public class GameDesktopLauncher implements ApplicationListener {
         int heightInTiles = levelGraphics.getHeightInTiles();
         LevelLayout layout = levelGenerator.generate(widthInTiles, heightInTiles);
 
-        registerGraphics(groundLayer);
+        HealthBarSettings healthBarSettings = new HealthBarSettings();
+        registerGraphics(groundLayer, healthBarSettings);
 
         List<GameObject> objects = new ArrayList<>();
         Tank playerTank = createTank(layout.getPlayerPosition(), PLAYER_BULLET_DAMAGE);
@@ -82,7 +85,8 @@ public class GameDesktopLauncher implements ApplicationListener {
         level.addObserver(levelGraphics);
 
         List<ControlStrategy> strategies = new ArrayList<>();
-        strategies.add(PlayerControls.create(new GdxKeyStateProvider(), playerTank, playerTank, level));
+        strategies.add(PlayerControls.create(new GdxKeyStateProvider(), playerTank, playerTank, level,
+                healthBarSettings));
         Random random = new Random();
         for (Tank tank : enemyTanks) {
             strategies.add(new RandomControlStrategy(tank, tank, level, random));
@@ -90,11 +94,12 @@ public class GameDesktopLauncher implements ApplicationListener {
         gameController = new GameController(strategies);
     }
 
-    private void registerGraphics(TiledMapTileLayer groundLayer) {
+    private void registerGraphics(TiledMapTileLayer groundLayer, HealthBarSettings healthBarSettings) {
         TileMovement tankMovement = new TileMovement(groundLayer, Interpolation.smooth);
         TileMovement bulletMovement = new TileMovement(groundLayer, Interpolation.smooth);
         levelGraphics
-                .register(Tank.class, tank -> new TankGraphics(TANK_TEXTURE, tank, tankMovement))
+                .register(Tank.class, tank -> new HealthBarGraphics(
+                        new TankGraphics(TANK_TEXTURE, tank, tankMovement), tank, healthBarSettings))
                 .register(Tree.class, tree -> new TreeGraphics(TREE_TEXTURE, tree, groundLayer))
                 .register(Bullet.class, bullet -> new BulletGraphics(BULLET_TEXTURE, bullet, bulletMovement));
     }
