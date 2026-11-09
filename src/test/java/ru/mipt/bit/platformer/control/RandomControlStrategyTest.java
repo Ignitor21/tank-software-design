@@ -86,6 +86,49 @@ class RandomControlStrategyTest {
         }
     }
 
+    @Test
+    void canChooseShootingInsteadOfMoving() {
+        Tank tank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, SPEED);
+        Level level = new Level(5, 5, singletonList(tank));
+        RandomControlStrategy strategy = new RandomControlStrategy(
+                tank, level, tank, level, 50, new Random(0));
+
+        boolean sawShoot = false;
+        boolean sawMove = false;
+        for (int i = 0; i < 100; i++) {
+            Command command = strategy.nextCommands().get(0);
+            sawShoot |= command instanceof ShootCommand;
+            sawMove |= command instanceof MoveCommand;
+        }
+
+        assertTrue(sawShoot);
+        assertTrue(sawMove);
+    }
+
+    @Test
+    void withZeroShootingPercentAlwaysMoves() {
+        Tank tank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, SPEED);
+        Level level = new Level(5, 5, singletonList(tank));
+        RandomControlStrategy strategy = new RandomControlStrategy(
+                tank, level, tank, level, 0, new Random(0));
+
+        for (int i = 0; i < 20; i++) {
+            assertTrue(strategy.nextCommands().get(0) instanceof MoveCommand);
+        }
+    }
+
+    @Test
+    void withFullShootingPercentAlwaysShoots() {
+        Tank tank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, SPEED);
+        Level level = new Level(5, 5, singletonList(tank));
+        RandomControlStrategy strategy = new RandomControlStrategy(
+                tank, level, tank, level, 100, new Random(0));
+
+        for (int i = 0; i < 20; i++) {
+            assertTrue(strategy.nextCommands().get(0) instanceof ShootCommand);
+        }
+    }
+
     private static List<Direction> directions(Random random) {
         List<Direction> directions = new ArrayList<>();
         RandomControlStrategy strategy = new RandomControlStrategy(

@@ -16,9 +16,11 @@ import ru.mipt.bit.platformer.generation.FileLevelGenerator;
 import ru.mipt.bit.platformer.generation.LevelGenerator;
 import ru.mipt.bit.platformer.generation.LevelLayout;
 import ru.mipt.bit.platformer.generation.RandomLevelGenerator;
+import ru.mipt.bit.platformer.graphics.BulletGraphics;
 import ru.mipt.bit.platformer.graphics.LevelGraphics;
 import ru.mipt.bit.platformer.graphics.TankGraphics;
 import ru.mipt.bit.platformer.graphics.TreeGraphics;
+import ru.mipt.bit.platformer.model.Bullet;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.GameObject;
 import ru.mipt.bit.platformer.model.Level;
@@ -34,9 +36,14 @@ import java.util.Random;
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final float MOVEMENT_SPEED = 0.4f;
+    private static final float BULLET_SPEED = 0.1f;
+    private static final int TANK_HEALTH = 100;
+    private static final int PLAYER_BULLET_DAMAGE = 50;
+    private static final int ENEMY_BULLET_DAMAGE = 25;
     private static final String LEVEL_PATH = "level.tmx";
     private static final String TANK_TEXTURE = "images/tank_blue.png";
     private static final String TREE_TEXTURE = "images/greenTree.png";
+    private static final String BULLET_TEXTURE = "images/bullet.png";
     private static final int RANDOM_TREE_COUNT = 10;
     private static final int RANDOM_TANK_COUNT = 4;
 
@@ -57,35 +64,43 @@ public class GameDesktopLauncher implements ApplicationListener {
         int heightInTiles = levelGraphics.getHeightInTiles();
         LevelLayout layout = levelGenerator.generate(widthInTiles, heightInTiles);
 
+        registerGraphics(groundLayer);
+
         List<GameObject> objects = new ArrayList<>();
-        Tank playerTank = createTank(layout.getPlayerPosition(), groundLayer);
+        Tank playerTank = createTank(layout.getPlayerPosition(), PLAYER_BULLET_DAMAGE);
         objects.add(playerTank);
         List<Tank> enemyTanks = new ArrayList<>();
         for (GridPoint2 tankPosition : layout.getTankPositions()) {
-            Tank tank = createTank(tankPosition, groundLayer);
+            Tank tank = createTank(tankPosition, ENEMY_BULLET_DAMAGE);
             objects.add(tank);
             enemyTanks.add(tank);
         }
         for (GridPoint2 treePosition : layout.getTreePositions()) {
-            Tree tree = new Tree(treePosition);
-            objects.add(tree);
-            levelGraphics.add(new TreeGraphics(TREE_TEXTURE, tree, groundLayer));
+            objects.add(new Tree(treePosition));
         }
         level = new Level(widthInTiles, heightInTiles, objects);
+        level.addObserver(levelGraphics);
 
         List<ControlStrategy> strategies = new ArrayList<>();
-        strategies.add(PlayerControls.create(new GdxKeyStateProvider(), playerTank, level));
+        strategies.add(PlayerControls.create(new GdxKeyStateProvider(), playerTank, playerTank, level));
         Random random = new Random();
         for (Tank tank : enemyTanks) {
-            strategies.add(new RandomControlStrategy(tank, level, random));
+            strategies.add(new RandomControlStrategy(tank, tank, level, random));
         }
         gameController = new GameController(strategies);
     }
 
-    private Tank createTank(GridPoint2 position, TiledMapTileLayer groundLayer) {
-        Tank tank = new Tank(position, Direction.RIGHT, MOVEMENT_SPEED);
-        levelGraphics.add(new TankGraphics(TANK_TEXTURE, tank, new TileMovement(groundLayer, Interpolation.smooth)));
-        return tank;
+    private void registerGraphics(TiledMapTileLayer groundLayer) {
+        TileMovement tankMovement = new TileMovement(groundLayer, Interpolation.smooth);
+        TileMovement bulletMovement = new TileMovement(groundLayer, Interpolation.smooth);
+        levelGraphics
+                .register(Tank.class, tank -> new TankGraphics(TANK_TEXTURE, tank, tankMovement))
+                .register(Tree.class, tree -> new TreeGraphics(TREE_TEXTURE, tree, groundLayer))
+                .register(Bullet.class, bullet -> new BulletGraphics(BULLET_TEXTURE, bullet, bulletMovement));
+    }
+
+    private static Tank createTank(GridPoint2 position, int bulletDamage) {
+        return new Tank(position, Direction.RIGHT, MOVEMENT_SPEED, TANK_HEALTH, bulletDamage, BULLET_SPEED);
     }
 
     @Override

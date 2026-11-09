@@ -8,4 +8,8 @@ public interface GameObject {
 
     default void update(float deltaTime) {
     }
+
+    default boolean isAlive() {
+        return true;
+    }
 }
