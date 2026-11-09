@@ -4,10 +4,12 @@ import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.GameWorld;
 import ru.mipt.bit.platformer.model.Movable;
 import ru.mipt.bit.platformer.model.Shooter;
+import ru.mipt.bit.platformer.settings.HealthBarSettings;
 
 import static com.badlogic.gdx.Input.Keys.A;
 import static com.badlogic.gdx.Input.Keys.D;
 import static com.badlogic.gdx.Input.Keys.DOWN;
+import static com.badlogic.gdx.Input.Keys.L;
 import static com.badlogic.gdx.Input.Keys.LEFT;
 import static com.badlogic.gdx.Input.Keys.RIGHT;
 import static com.badlogic.gdx.Input.Keys.S;
@@ -21,7 +23,8 @@ public final class PlayerControls {
     }
 
     public static KeyboardControlStrategy create(KeyStateProvider keyStateProvider, Movable player,
-                                                   Shooter shooter, GameWorld world) {
+                                                   Shooter shooter, GameWorld world,
+                                                   HealthBarSettings healthBarSettings) {
         return new KeyboardControlStrategy(keyStateProvider)
                 .bind(UP, new MoveCommand(player, Direction.UP, world))
                 .bind(W, new MoveCommand(player, Direction.UP, world))
@@ -31,6 +34,7 @@ public final class PlayerControls {
                 .bind(S, new MoveCommand(player, Direction.DOWN, world))
                 .bind(RIGHT, new MoveCommand(player, Direction.RIGHT, world))
                 .bind(D, new MoveCommand(player, Direction.RIGHT, world))
-                .bind(SPACE, new ShootCommand(shooter, world));
+                .bind(SPACE, new ShootCommand(shooter, world))
+                .bindJustPressed(L, new ToggleHealthBarsCommand(healthBarSettings));
     }
 }

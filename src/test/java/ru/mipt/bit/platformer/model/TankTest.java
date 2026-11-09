@@ -168,6 +168,16 @@ class TankTest {
     }
 
     @Test
+    void remembersMaxHealth() {
+        Tank customTank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, SPEED, 80, 10);
+
+        customTank.takeDamage(20);
+
+        assertEquals(80, customTank.getMaxHealth());
+        assertEquals(60, customTank.getHealth());
+    }
+
+    @Test
     void canShootAgainAfterCooldown() {
         Level level = new Level(5, 5, singletonList(tank));
         tank.shoot(level);

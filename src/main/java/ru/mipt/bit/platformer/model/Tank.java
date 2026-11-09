@@ -20,6 +20,7 @@ public class Tank implements GameObject, Movable, Shooter, Damageable {
     private float movementProgress;
     private float timeSinceLastShot;
     private Direction direction;
+    private final int maxHealth;
     private int health;
 
     public Tank(GridPoint2 initialCoordinates, Direction initialDirection, float movementSpeed) {
@@ -51,6 +52,7 @@ public class Tank implements GameObject, Movable, Shooter, Damageable {
         this.shootCooldown = DEFAULT_SHOOT_COOLDOWN;
         this.movementProgress = 1f;
         this.timeSinceLastShot = shootCooldown;
+        this.maxHealth = health;
         this.health = health;
         this.bulletDamage = bulletDamage;
     }
@@ -132,6 +134,11 @@ public class Tank implements GameObject, Movable, Shooter, Damageable {
 
     public int getHealth() {
         return health;
+    }
+
+    @Override
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     public int getBulletDamage() {
