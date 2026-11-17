@@ -75,8 +75,62 @@ class KeyboardControlStrategyTest {
         assertEquals(Arrays.asList("replaced"), executed);
     }
 
+    @Test
+    void justPressedBindingFiresOnlyWhileKeyIsJustPressed() {
+        Set<Integer> pressedKeys = new HashSet<>();
+        Set<Integer> justPressedKeys = new HashSet<>();
+        KeyStateProvider provider = new KeyStateProvider() {
+            @Override
+            public boolean isKeyPressed(int keyCode) {
+                return pressedKeys.contains(keyCode);
+            }
+
+            @Override
+            public boolean isKeyJustPressed(int keyCode) {
+                return justPressedKeys.contains(keyCode);
+            }
+        };
+        List<String> executed = new ArrayList<>();
+        KeyboardControlStrategy justPressedStrategy = new KeyboardControlStrategy(provider)
+                .bindJustPressed(SPACE, () -> executed.add("toggle"));
+
+        justPressedKeys.add(SPACE);
+        executeNextCommands(justPressedStrategy);
+        justPressedKeys.clear();
+        executeNextCommands(justPressedStrategy);
+
+        assertEquals(Arrays.asList("toggle"), executed);
+    }
+
+    @Test
+    void pressedBindingDoesNotReuseJustPressedState() {
+        Set<Integer> pressedKeys = new HashSet<>();
+        KeyStateProvider provider = new KeyStateProvider() {
+            @Override
+            public boolean isKeyPressed(int keyCode) {
+                return pressedKeys.contains(keyCode);
+            }
+
+            @Override
+            public boolean isKeyJustPressed(int keyCode) {
+                return true;
+            }
+        };
+        List<String> executed = new ArrayList<>();
+        KeyboardControlStrategy pressedStrategy = new KeyboardControlStrategy(provider)
+                .bind(UP, () -> executed.add("up"));
+
+        executeNextCommands(pressedStrategy);
+
+        assertEquals(emptyList(), executed);
+    }
+
     private void executeNextCommands() {
-        for (Command command : strategy.nextCommands()) {
+        executeNextCommands(strategy);
+    }
+
+    private void executeNextCommands(KeyboardControlStrategy keyboardStrategy) {
+        for (Command command : keyboardStrategy.nextCommands()) {
             command.execute();
         }
     }

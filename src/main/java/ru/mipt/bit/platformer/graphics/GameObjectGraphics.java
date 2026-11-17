@@ -28,6 +28,10 @@ public abstract class GameObjectGraphics<T> implements Renderable {
         drawTextureRegionUnscaled(batch, graphics, rectangle, getRotation());
     }
 
+    public Rectangle getRectangle() {
+        return rectangle;
+    }
+
     protected abstract void moveRectangle(Rectangle rectangle);
 
     protected abstract float getRotation();
