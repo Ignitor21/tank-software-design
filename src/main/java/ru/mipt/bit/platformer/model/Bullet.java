@@ -51,7 +51,9 @@ public class Bullet implements GameObject {
             movementProgress = clamp(movementProgress + deltaTime / movementSpeed, 0f, 1f);
             if (!isMoving()) {
                 coordinates.set(destinationCoordinates);
-                if (hasBlockerAt(coordinates)) {
+                if (!world.isInside(coordinates)) {
+                    destroy();
+                } else if (hasBlockerAt(coordinates)) {
                     collideAt(coordinates);
                 }
             }
@@ -72,14 +74,6 @@ public class Bullet implements GameObject {
 
     private void startNextStep() {
         GridPoint2 next = direction.apply(coordinates);
-        if (!world.isInside(next)) {
-            destroy();
-            return;
-        }
-        if (hasBlockerAt(next)) {
-            collideAt(next);
-            return;
-        }
         destinationCoordinates.set(next);
         movementProgress = 0f;
     }

@@ -43,6 +43,43 @@ class BulletTest {
     }
 
     @Test
+    void bulletRemainsVisibleBeforeReachingTreeAcrossFreeTile() {
+        Tank tank = new Tank(new GridPoint2(1, 1), Direction.RIGHT, TANK_SPEED);
+        Tree tree = new Tree(new GridPoint2(3, 1));
+        Level level = new Level(5, 5, asList(tank, tree));
+        tank.shoot(level);
+        Bullet bullet = bulletsAt(level, new GridPoint2(2, 1)).get(0);
+
+        level.update(1f / 60f);
+
+        assertTrue(bullet.isAlive());
+        assertTrue(level.objectsAt(new GridPoint2(2, 1)).contains(bullet));
+
+        level.update(TANK_SPEED);
+
+        assertFalse(bullet.isAlive());
+        assertEquals(singletonList(tree), level.objectsAt(new GridPoint2(3, 1)));
+    }
+
+    @Test
+    void bulletRemainsVisibleWhenSpawnedOnLastTile() {
+        Tank tank = new Tank(new GridPoint2(3, 1), Direction.RIGHT, TANK_SPEED);
+        Level level = new Level(5, 5, singletonList(tank));
+        tank.shoot(level);
+        Bullet bullet = bulletsAt(level, new GridPoint2(4, 1)).get(0);
+
+        level.update(1f / 60f);
+
+        assertTrue(bullet.isAlive());
+        assertTrue(level.objectsAt(new GridPoint2(4, 1)).contains(bullet));
+
+        level.update(TANK_SPEED);
+
+        assertFalse(bullet.isAlive());
+        assertTrue(level.isFree(new GridPoint2(4, 1)));
+    }
+
+    @Test
     void bulletLeavesLevelThroughBorder() {
         Tank tank = new Tank(new GridPoint2(4, 1), Direction.RIGHT, TANK_SPEED);
         Level level = new Level(6, 5, singletonList(tank));
@@ -50,6 +87,8 @@ class BulletTest {
         Bullet bullet = bulletsAt(level, new GridPoint2(5, 1)).get(0);
 
         bullet.update(0f);
+        assertTrue(bullet.isAlive());
+        bullet.update(TANK_SPEED);
 
         assertFalse(bullet.isAlive());
     }
@@ -90,6 +129,10 @@ class BulletTest {
         bullet.update(BULLET_SPEED);
         bullet.update(0f);
 
+        assertEquals(100, target.getHealth());
+        assertTrue(bullet.isAlive());
+        bullet.update(BULLET_SPEED);
+
         assertEquals(60, target.getHealth());
         assertFalse(bullet.isAlive());
     }
@@ -115,6 +158,10 @@ class BulletTest {
         level.addObject(second);
 
         level.update(0f);
+
+        assertTrue(first.isAlive());
+        assertTrue(second.isAlive());
+        level.update(BULLET_SPEED);
 
         assertFalse(first.isAlive());
         assertFalse(second.isAlive());

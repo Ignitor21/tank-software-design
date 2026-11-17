@@ -17,3 +17,4 @@ junit.engine = "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
 deps.junit = junit
 
 ext.deps = deps
+ext.lwjglVersion = '3.3.6'
