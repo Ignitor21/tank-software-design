@@ -20,6 +20,14 @@ repositories {
     mavenCentral()
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { dependency ->
+        if (dependency.requested.group == 'org.lwjgl') {
+            dependency.useVersion lwjglVersion
+        }
+    }
+}
+
 dependencies {
     implementation deps.gdx.gdx
     implementation deps.gdx.backend_lwjgl3

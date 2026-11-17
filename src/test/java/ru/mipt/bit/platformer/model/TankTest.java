@@ -3,6 +3,7 @@ package ru.mipt.bit.platformer.model;
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.jupiter.api.Test;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -121,5 +122,62 @@ class TankTest {
 
         assertFalse(tank.occupies(new GridPoint2(1, 1)));
         assertTrue(tank.occupies(new GridPoint2(1, 2)));
+    }
+
+    @Test
+    void damageReducesHealth() {
+        tank.takeDamage(30);
+
+        assertEquals(70, tank.getHealth());
+        assertTrue(tank.isAlive());
+    }
+
+    @Test
+    void tankDiesWhenHealthReachesZero() {
+        tank.takeDamage(Tank.DEFAULT_HEALTH);
+
+        assertEquals(0, tank.getHealth());
+        assertFalse(tank.isAlive());
+    }
+
+    @Test
+    void tankDiesWhenHealthGoesNegative() {
+        tank.takeDamage(Tank.DEFAULT_HEALTH + 20);
+
+        assertTrue(tank.getHealth() < 0);
+        assertFalse(tank.isAlive());
+    }
+
+    @Test
+    void deadTankCannotMove() {
+        tank.takeDamage(Tank.DEFAULT_HEALTH);
+
+        tank.move(Direction.UP, ALWAYS_FREE);
+
+        assertFalse(tank.isMoving());
+    }
+
+    @Test
+    void cannotShootAgainDuringCooldown() {
+        Level level = new Level(5, 5, singletonList(tank));
+
+        tank.shoot(level);
+        tank.shoot(level);
+
+        assertEquals(1, level.objectsAt(new GridPoint2(2, 1)).size());
+    }
+
+    @Test
+    void canShootAgainAfterCooldown() {
+        Level level = new Level(5, 5, singletonList(tank));
+        tank.shoot(level);
+        Bullet first = (Bullet) level.objectsAt(new GridPoint2(2, 1)).get(0);
+        first.update(0f);
+        first.update(0.4f);
+
+        tank.update(Tank.DEFAULT_SHOOT_COOLDOWN);
+        tank.shoot(level);
+
+        assertEquals(1, level.objectsAt(new GridPoint2(2, 1)).size());
     }
 }
