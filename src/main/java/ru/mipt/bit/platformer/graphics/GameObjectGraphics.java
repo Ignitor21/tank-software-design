@@ -16,7 +16,11 @@ public abstract class GameObjectGraphics<T> implements Renderable {
     protected final T object;
 
     protected GameObjectGraphics(String texturePath, T object) {
-        this.texture = new Texture(texturePath);
+        this(new Texture(texturePath), object);
+    }
+
+    protected GameObjectGraphics(Texture texture, T object) {
+        this.texture = texture;
         this.graphics = new TextureRegion(texture);
         this.rectangle = createBoundingRectangle(graphics);
         this.object = object;
