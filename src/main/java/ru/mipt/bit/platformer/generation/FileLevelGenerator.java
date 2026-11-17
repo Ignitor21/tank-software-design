@@ -6,6 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * File adapter for LevelGenerator. Reads a file and passes its text to TextLevelGenerator.
+ */
 public class FileLevelGenerator implements LevelGenerator {
 
     private final Path path;

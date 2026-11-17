@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Domain class. Stores game objects and implements the GameWorld and CollisionChecker ports.
+ */
 public class Level implements GameWorld {
 
     private final int widthInTiles;

@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * LevelGenerator adapter. Creates a random level layout.
+ */
 public class RandomLevelGenerator implements LevelGenerator {
 
     private final int treeCount;

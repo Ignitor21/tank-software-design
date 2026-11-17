@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Interpolation;
@@ -35,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Desktop adapter. Creates game objects, connects them and runs the game with libGDX.
+ */
 public class GameDesktopLauncher implements ApplicationListener {
 
     private static final float MOVEMENT_SPEED = 0.4f;
@@ -44,6 +48,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private static final int ENEMY_BULLET_DAMAGE = 25;
     private static final String LEVEL_PATH = "level.tmx";
     private static final String TANK_TEXTURE = "images/tank_blue.png";
+    private static final Color PLAYER_TANK_COLOR = new Color(1f, 0.45f, 0.08f, 1f);
     private static final String TREE_TEXTURE = "images/greenTree.png";
     private static final String BULLET_TEXTURE = "images/bullet.png";
     private static final int RANDOM_TREE_COUNT = 10;
@@ -67,10 +72,10 @@ public class GameDesktopLauncher implements ApplicationListener {
         LevelLayout layout = levelGenerator.generate(widthInTiles, heightInTiles);
 
         HealthBarSettings healthBarSettings = new HealthBarSettings();
-        registerGraphics(groundLayer, healthBarSettings);
 
         List<GameObject> objects = new ArrayList<>();
         Tank playerTank = createTank(layout.getPlayerPosition(), PLAYER_BULLET_DAMAGE);
+        registerGraphics(groundLayer, healthBarSettings, playerTank);
         objects.add(playerTank);
         List<Tank> enemyTanks = new ArrayList<>();
         for (GridPoint2 tankPosition : layout.getTankPositions()) {
@@ -94,12 +99,15 @@ public class GameDesktopLauncher implements ApplicationListener {
         gameController = new GameController(strategies);
     }
 
-    private void registerGraphics(TiledMapTileLayer groundLayer, HealthBarSettings healthBarSettings) {
+    private void registerGraphics(TiledMapTileLayer groundLayer, HealthBarSettings healthBarSettings,
+                                  Tank playerTank) {
         TileMovement tankMovement = new TileMovement(groundLayer, Interpolation.smooth);
         TileMovement bulletMovement = new TileMovement(groundLayer, Interpolation.smooth);
         levelGraphics
                 .register(Tank.class, tank -> new HealthBarGraphics(
-                        new TankGraphics(TANK_TEXTURE, tank, tankMovement), tank, healthBarSettings))
+                        tank == playerTank
+                                ? new TankGraphics(TANK_TEXTURE, tank, tankMovement, PLAYER_TANK_COLOR)
+                                : new TankGraphics(TANK_TEXTURE, tank, tankMovement), tank, healthBarSettings))
                 .register(Tree.class, tree -> new TreeGraphics(TREE_TEXTURE, tree, groundLayer))
                 .register(Bullet.class, bullet -> new BulletGraphics(BULLET_TEXTURE, bullet, bulletMovement));
     }

@@ -6,6 +6,9 @@ import ru.mipt.bit.platformer.model.Tree;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
+/**
+ * Graphics adapter. Draws a tree.
+ */
 public class TreeGraphics extends GameObjectGraphics<Tree> {
 
     private static final float NO_ROTATION = 0f;

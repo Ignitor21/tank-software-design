@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Keyboard adapter. Returns commands for pressed keys through ControlStrategy.
+ */
 public class KeyboardControlStrategy implements ControlStrategy {
 
     private final KeyStateProvider keyStateProvider;

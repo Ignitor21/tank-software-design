@@ -11,6 +11,9 @@ import ru.mipt.bit.platformer.settings.HealthBarSettings;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 
+/**
+ * Graphics adapter. Draws a health bar using health from Damageable.
+ */
 public class HealthBarGraphics implements Renderable {
 
     private static final float BAR_HEIGHT = 10f;
