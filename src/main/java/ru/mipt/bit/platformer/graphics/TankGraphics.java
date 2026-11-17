@@ -8,6 +8,9 @@ import com.badlogic.gdx.math.Rectangle;
 import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.util.TileMovement;
 
+/**
+ * Graphics adapter. Draws a tank.
+ */
 public class TankGraphics extends GameObjectGraphics<Tank> {
 
     private final TileMovement tileMovement;

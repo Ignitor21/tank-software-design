@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.Rectangle;
 import ru.mipt.bit.platformer.model.Bullet;
 import ru.mipt.bit.platformer.util.TileMovement;
 
+/**
+ * Graphics adapter. Draws a bullet.
+ */
 public class BulletGraphics extends GameObjectGraphics<Bullet> {
 
     private final TileMovement tileMovement;

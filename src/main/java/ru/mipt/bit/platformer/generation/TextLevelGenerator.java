@@ -5,6 +5,9 @@ import com.badlogic.gdx.math.GridPoint2;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * LevelGenerator adapter. Reads a level layout from text rows.
+ */
 public class TextLevelGenerator implements LevelGenerator {
 
     private static final char TREE = 'T';

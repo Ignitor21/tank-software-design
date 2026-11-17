@@ -19,6 +19,9 @@ import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createSingleLayerMapRenderer;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
 
+/**
+ * Graphics adapter. Receives events from LevelObserver and draws the level with libGDX.
+ */
 public class LevelGraphics implements Disposable, LevelObserver {
 
     private final Batch batch;

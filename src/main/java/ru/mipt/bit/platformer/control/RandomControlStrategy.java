@@ -11,6 +11,9 @@ import java.util.Random;
 
 import static java.util.Collections.singletonList;
 
+/**
+ * AI adapter. Returns random move and shoot commands through ControlStrategy.
+ */
 public class RandomControlStrategy implements ControlStrategy {
 
     private static final Direction[] DIRECTIONS = Direction.values();

@@ -17,6 +17,9 @@ import static com.badlogic.gdx.Input.Keys.SPACE;
 import static com.badlogic.gdx.Input.Keys.UP;
 import static com.badlogic.gdx.Input.Keys.W;
 
+/**
+ * Sets up the keyboard adapter. Connects libGDX keys to game commands.
+ */
 public final class PlayerControls {
 
     private PlayerControls() {

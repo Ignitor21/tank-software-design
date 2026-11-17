@@ -8,6 +8,9 @@ import com.badlogic.gdx.math.Rectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
+/**
+ * Base graphics adapter. Draws a game object using a libGDX texture.
+ */
 public abstract class GameObjectGraphics<T> implements Renderable {
 
     private final Texture texture;

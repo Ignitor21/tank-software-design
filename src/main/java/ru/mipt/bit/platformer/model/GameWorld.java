@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.GridPoint2;
 
 import java.util.List;
 
+/**
+ * Domain output port. Finds objects on a tile and adds or removes game objects.
+ */
 public interface GameWorld extends CollisionChecker {
 
     boolean isInside(GridPoint2 coordinates);
